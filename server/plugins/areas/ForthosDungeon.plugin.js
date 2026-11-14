@@ -24,6 +24,8 @@ const DOOR = 34840;
 const THIEVING_REQUIRED = 57;
 const LOCK_EXPERIENCE = 10;
 const PICK_ANIMATION = "human_pickuptable";
+/** The placed Grubby Chest multiloc (its closed child `hosdun_grubby_chest_closed` is 34838). */
+const GRUBBY_CHEST = 34901;
 
 let core = null;
 
@@ -46,13 +48,29 @@ function pickLock({ player, object }) {
   return true;
 }
 
+/**
+ * The Grubby Chest sits in a torch-lit niche at (1795, 9925). Its cache access edge faces the
+ * south torch tile, which the map clips, while the only walkable side is the alcove east of it;
+ * clicking it from inside the gate therefore ended in "I can't reach that!" (issue #5237).
+ * Route that click to the east tile so the chest's Open/Check run once the player is there.
+ */
+function routeGrubbyChest(event) {
+  if (event.objectId !== GRUBBY_CHEST) return;
+  const at = event.object.getLocation();
+  const x = event.player.getLocation().getX();
+  // Only from inside the gate: outside, the closed door still blocks the walk to the niche.
+  if (x !== at.getX() + 1 && x !== at.getX() + 2) return;
+  event.destination = { x: at.getX() + 1, y: at.getY(), z: at.getZ() };
+}
+
 module.exports = {
   name: "ForthosDungeon",
   description: "Forthos Dungeon's grubby gate: 57 Thieving unlocks it and hands the player across.",
   members: true,
-  _test: { pickLock, DOOR, THIEVING_REQUIRED, LOCK_EXPERIENCE, PICK_ANIMATION },
+  _test: { pickLock, routeGrubbyChest, DOOR, THIEVING_REQUIRED, LOCK_EXPERIENCE, PICK_ANIMATION, GRUBBY_CHEST },
   register(pluginApi) {
     core = pluginApi.core;
+    pluginApi.onObjectRoute(routeGrubbyChest);
     pluginApi.onObjectInteraction("Grubby Door", { "Pick-lock": pickLock });
   },
 };
