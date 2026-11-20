@@ -64,7 +64,7 @@ log "checking the notify trigger"
 status_out="$("${COMPOSE[@]}" exec -T app tsps-notify status)"
 [[ "$status_out" == *"No restart scheduled"* ]] || fail "status: $status_out"
 say_out="$("${COMPOSE[@]}" exec -T app tsps-notify say "Docker smoke test")"
-[[ "$say_out" == *"0 players"* ]] || fail "say: $say_out"
+[[ "$say_out" == *"Announcement sent"* ]] || fail "say: $say_out"
 
 log "checking that only /data and /tmp changed"
 docker diff tsps | grep -vE '^(A|C|D) (/data|/tmp)(/|$)' | grep -vE '^(A|C|D) /etc/(hosts|hostname|resolv.conf)$' > /tmp/tsps-docker-diff-extra || true

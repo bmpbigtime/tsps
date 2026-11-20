@@ -7,7 +7,8 @@ const { playerRoutes } = require("./worldadmin/Players.WorldAdmin");
 const { botRoutes } = require("./worldadmin/Bots.WorldAdmin");
 const { botEditorRoutes } = require("./worldadmin/BotEditor.WorldAdmin");
 const { readPluginZip, downloadPluginRelease, savePluginZip, deletePluginZip } = require("./worldadmin/PluginZip.WorldAdmin");
-const { pluginsImportedDir, worldLocalConfigPath, worldAdminTokenPath } = require("../lib/GamePaths");
+// cwd is server/ in production, dev and the tests that copy this plugin to a temp directory.
+const { pluginsImportedDir, worldLocalConfigPath, worldAdminTokenPath } = require(path.join(process.cwd(), "plugins", "lib", "GamePaths"));
 
 // The world config page's own HTTP listener (spec "Saving", "Restart", "Access").
 //   WORLD_ADMIN_PORT (default 49600), WORLD_ADMIN_TOKEN (fixed token), WORLD_ADMIN_BIND (only with a 24+ character token)
@@ -155,10 +156,14 @@ function checkPluginMutationAllowed() {
   }
 }
 
+function importedPluginsDirectory() {
+  return process.env.TSPS_DATA_DIR ? pluginsImportedDir() : path.join(PLUGIN_DIRECTORY, "imported");
+}
+
 function installRelease(release) {
   checkPluginMutationAllowed();
   const catalog = pluginApi.core.WorldConfigCatalog;
-  savePluginZip(PLUGIN_DIRECTORY, release, catalog.build(PLUGIN_DIRECTORY, readLayers()).plugins, pluginsImportedDir());
+  savePluginZip(PLUGIN_DIRECTORY, release, catalog.build(PLUGIN_DIRECTORY, readLayers()).plugins, importedPluginsDirectory());
   catalog.invalidate();
   return { status: 201, body: { name: release.manifest.name, version: release.manifest.version } };
 }
@@ -170,7 +175,7 @@ async function installPluginAction({ packageId, version }) {
 
 function deletePluginAction({ packageId }) {
   checkPluginMutationAllowed();
-  deletePluginZip(PLUGIN_DIRECTORY, packageId, pluginsImportedDir());
+  deletePluginZip(PLUGIN_DIRECTORY, packageId, importedPluginsDirectory());
   pluginApi.core.WorldConfigCatalog.invalidate();
   return { status: 200, body: { deleted: true } };
 }
