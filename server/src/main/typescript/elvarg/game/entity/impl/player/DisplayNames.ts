@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { Misc } from "../../../../util/Misc";
 import { PLAYER_PROFILES } from "./persistence/PlayerProfile";
+import { savesPath } from "../../../../util/GamePaths";
 
 /** A name an account gave up, kept for it until `until` so nobody else can take it straight away. */
 export interface HeldDisplayName {
@@ -37,7 +38,7 @@ export class DisplayNames {
     }
 
     private static file(): string {
-        return process.env[DisplayNames.FILE_ENV] || path.join(process.cwd(), "data", "saves", "display-names.json");
+        return process.env[DisplayNames.FILE_ENV] || savesPath("display-names.json");
     }
 
     private static load(): Map<string, DisplayNameEntry> {

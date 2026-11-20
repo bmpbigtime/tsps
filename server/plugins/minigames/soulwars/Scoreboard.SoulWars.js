@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The lobby scoreboard (soul_wars_scoreboard, "Scoreboard": View), interface soul_wars_stats.
@@ -23,7 +24,7 @@ const SCOREBOARD_LOC = "soul_wars_scoreboard";
 const INTERFACE_NAME = "soul_wars_stats";
 const TEXT_COMPONENT = "soul_wars_stats:scroll_text";
 
-let FILE = path.join(process.cwd(), "data", "saves", "soul-wars-scoreboard.json");
+let FILE = savesPath("soul-wars-scoreboard.json");
 let world = null;
 
 const count = (value) => (Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0);

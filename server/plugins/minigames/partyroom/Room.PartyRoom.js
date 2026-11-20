@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The Falador Party Room (Wiki: Party Room, Party chest, Party balloon): donate items to the chest,
@@ -58,7 +59,7 @@ const accountOf = (player) => player.getUsername().toLowerCase();
 function profileFile() {
   const profile = core.GameConstants.WORLD_PROFILE;
   const name = !profile || profile === "main" ? "party-room.json" : `party-room.${profile}.json`;
-  return path.join(process.env.TSPS_PARTY_ROOM_DIR || path.join(process.cwd(), "data", "saves"), name);
+  return path.join(process.env.TSPS_PARTY_ROOM_DIR || savesPath(), name);
 }
 
 function canOpen(player) {

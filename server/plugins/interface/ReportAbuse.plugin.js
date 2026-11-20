@@ -1,3 +1,4 @@
+const { savesPath } = require("../lib/GamePaths");
 // Reporting a player, as captured on live (rsprox 2375 rev 229, 3719 rev 235): every player
 // gets the "Report" option in player slot 8; that option or the chatbox Report button opens
 // interface 875 (reportabuse) as an overlay on chatbox:chatoverlay with reportabuse_init, Close
@@ -33,7 +34,7 @@ const REPORT_INIT_SCRIPT = 5084;
 const REPORT_CLOSE_SCRIPT = 5085;
 const BUSY_MESSAGE = "Please finish what you're doing first.";
 const REPORTS_FILE_ENV = "TSPS_ABUSE_REPORTS_FILE";
-const DEFAULT_REPORTS_FILE = "./data/saves/abuse-reports.jsonl";
+const DEFAULT_REPORTS_FILE = savesPath("abuse-reports.jsonl");
 const MAX_NAME_LENGTH = 12;
 
 /**

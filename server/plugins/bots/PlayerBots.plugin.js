@@ -1,4 +1,7 @@
 const path = require("path");
+const { logsDir } = require("../lib/GamePaths");
+
+const LOG_DIR = logsDir();
 const { initPvpTierLoadouts } = require("./behaviours/pvp/PvpTierLoadouts.PlayerBots");
 const { GameConstants } = require("../../src/main/typescript/elvarg/game/GameConstants");
 const { Wilderness } = require("../../src/main/typescript/elvarg/game/content/wilderness/Wilderness");
@@ -116,7 +119,7 @@ const BOT_CONFIG = Object.freeze({
   }),
   wildernessDitchObjectId: ObjectIds.WILDERNESS_DITCH,
   logging: Object.freeze({
-    logPath: path.join(process.cwd(), "logs", "player-bots.log"),
+    logPath: path.join(LOG_DIR, "player-bots.log"),
     runtimeEventLoggingEnabled:
       (process.env.BOT_RUNTIME_EVENT_LOGGING ?? "0") === "1",
     // Mirroring high-frequency bot runtime logs into the core server logger is
@@ -129,7 +132,7 @@ const BOT_CONFIG = Object.freeze({
         (GameConstants.SERVER_LOG_WRITES_ENABLED ? "1" : "0")) === "1",
     telemetryEnabled:
       (process.env.BOT_RUNTIME_TELEMETRY_ENABLED ?? "1") === "1",
-    telemetryLogPath: path.join(process.cwd(), "logs", "bot-runtime-telemetry.log"),
+    telemetryLogPath: path.join(LOG_DIR, "bot-runtime-telemetry.log"),
     telemetryIntervalMs: parseEnvInt(
       "BOT_RUNTIME_TELEMETRY_INTERVAL_MS",
       10000,
@@ -141,7 +144,7 @@ const BOT_CONFIG = Object.freeze({
     interactionSlot: 1,
     optionLabel: "Status",
     recentLogLines: 8,
-    diagnoseLogPath: path.join(process.cwd(), "logs", "diagnose-stuck-bot.log"),
+    diagnoseLogPath: path.join(LOG_DIR, "diagnose-stuck-bot.log"),
   }),
   eatOptions: BOT_EAT_OPTIONS,
   pvp: Object.freeze({

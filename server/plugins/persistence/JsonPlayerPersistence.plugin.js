@@ -1,3 +1,4 @@
+const { savesPath } = require("../lib/GamePaths");
 const fs = require("fs");
 const fsp = fs.promises;
 const path = require("path");
@@ -89,12 +90,7 @@ async function writeFileAtomicallyAsync(filePath, content) {
 class JsonPlayerPersistence extends PlayerPersistence {
   /** The profile helpers, for the IndexedDb subclass. */
   static PROFILES = { MAIN_PROFILE: PlayerPersistence.MAIN_PROFILE, profileStorageKey: PlayerPersistence.profileStorageKey };
-  static SAVE_DIRECTORY = path.join(
-    process.cwd(),
-    "data",
-    "saves",
-    "characters"
-  );
+  static SAVE_DIRECTORY = savesPath("characters");
 
   constructor() {
     super();
@@ -650,7 +646,7 @@ module.exports = {
     }
     api.setPlayerPersistence(new JsonPlayerPersistence());
     api.log("registered", {
-      saveDirectory: path.join("data", "saves", "characters"),
+      saveDirectory: savesPath("characters"),
     });
   },
   JsonPlayerPersistence,

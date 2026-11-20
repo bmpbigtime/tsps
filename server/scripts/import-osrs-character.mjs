@@ -83,6 +83,7 @@ import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
 
 const require = createRequire(import.meta.url);
+const { savesPath } = require("../plugins/lib/GamePaths");
 const { SqliteSaveHistory } = require("../plugins/persistence/SaveHistory.SqlitePlayerPersistence.js");
 
 const PRE_IMPORT_REASON = "pre-account-import";
@@ -751,7 +752,7 @@ export async function run(argv, { log = console.log, now = new Date() } = {}) {
   const databasePath = path.resolve(
     args.database ??
       process.env.PLAYER_SAVE_DATABASE_PATH ??
-      path.join(process.cwd(), "data", "saves", "players.sqlite")
+      savesPath("players.sqlite")
   );
   if (!fs.existsSync(databasePath)) throw new Error(`No save database at ${databasePath}`);
   const serverDir = path.resolve(process.cwd(), ".");

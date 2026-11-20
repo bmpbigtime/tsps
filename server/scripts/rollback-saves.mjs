@@ -18,6 +18,7 @@ import { createRequire } from "node:module";
 import { DatabaseSync } from "node:sqlite";
 
 const require = createRequire(import.meta.url);
+const { savesPath } = require("../plugins/lib/GamePaths");
 const { SqliteSaveHistory, PRE_ROLLBACK_REASON, ROLLBACK_REASON } = require("../plugins/persistence/SaveHistory.SqlitePlayerPersistence.js");
 
 function parseArgs(argv) {
@@ -54,7 +55,7 @@ function serverRunning(databasePath) {
 
 export function run(argv, { log = console.log, now = new Date() } = {}) {
   const args = parseArgs(argv);
-  const databasePath = path.resolve(args.database ?? process.env.PLAYER_SAVE_DATABASE_PATH ?? path.join(process.cwd(), "data", "saves", "players.sqlite"));
+  const databasePath = path.resolve(args.database ?? process.env.PLAYER_SAVE_DATABASE_PATH ?? savesPath("players.sqlite"));
   if (!fs.existsSync(databasePath)) throw new Error(`No save database at ${databasePath}`);
   const pid = serverRunning(databasePath);
   if (pid) throw new Error(`The server (pid ${pid}) has ${databasePath} open. Stop it first.`);

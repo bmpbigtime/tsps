@@ -1,3 +1,4 @@
+const { savesPath } = require("../../lib/GamePaths");
 /**
  * The public chamber behind the Ancient Barrier: one per world, on the real map.
  *
@@ -18,7 +19,7 @@ const Common = require("./Common.Nex");
 const Fight = require("./Fight.Nex");
 
 /** The scoreboard's world totals, kept as the Doom's are: plugins have no world store. */
-const SCOREBOARD_FILE = path.join(process.cwd(), "data", "saves", "nex-scoreboard.json");
+const SCOREBOARD_FILE = savesPath("nex-scoreboard.json");
 
 const state = {
   fight: null,

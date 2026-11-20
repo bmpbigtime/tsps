@@ -6,9 +6,11 @@ import fs = require("node:fs");
 import path = require("node:path");
 
 const OPENRS2_API = "https://archive.openrs2.org";
+// Shared with the server so TSPS_DATA_DIR/TSPS_CACHE_DIR move the cache with the rest of the data.
+const { cachesDir } = require("../plugins/lib/GamePaths");
 /** server/ package root (this file lives in server/scripts/) */
 const SERVER_ROOT = path.resolve(__dirname, "..");
-const CACHES_DIR = path.join(SERVER_ROOT, "caches");
+const CACHES_DIR = cachesDir();
 const TARGET_FILE = path.join(SERVER_ROOT, "target.txt");
 const LOCK_FILE = path.join(CACHES_DIR, ".cache-download.lock");
 const LOCK_POLL_MS = 1000;

@@ -1,6 +1,7 @@
 const path = require("path");
+const { proceduralDataDir } = require("../../lib/GamePaths");
 
-const PROCEDURAL_DATA_DIRECTORY = path.join(__dirname, "..", "data");
+const PROCEDURAL_DATA_DIRECTORY = proceduralDataDir();
 const HOUSE_DUMP_DIRECTORY = path.join(PROCEDURAL_DATA_DIRECTORY, "house-examples");
 const PRESET_OUTPUT_PATH = path.join(PROCEDURAL_DATA_DIRECTORY, "proc-building-presets.json");
 const ANALYSIS_REPORT_DIRECTORY = path.join(PROCEDURAL_DATA_DIRECTORY, "analysis-reports");

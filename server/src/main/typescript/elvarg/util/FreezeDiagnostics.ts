@@ -1,8 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
 import { GameConstants } from "../game/GameConstants";
+import { logsDir } from "./GamePaths";
 
-const LOG_DIR = path.join(process.cwd(), "logs");
+const LOG_DIR = logsDir();
 const LOG_FILE = path.join(LOG_DIR, "freeze-diagnostics.log");
 
 export class FreezeDiagnostics {

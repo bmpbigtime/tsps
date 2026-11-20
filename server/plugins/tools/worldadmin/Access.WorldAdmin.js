@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const fs = require("fs");
+const path = require("path");
 const { tlsFiles } = require("./Tls.WorldAdmin");
 
 // Who may reach the world config page. Spec "Access": own listener on loopback, a token on every
@@ -45,6 +46,7 @@ function storedToken(tokenFile, notes) {
   }
   const token = crypto.randomBytes(24).toString("base64url");
   try {
+    fs.mkdirSync(path.dirname(tokenFile), { recursive: true });
     fs.writeFileSync(tokenFile, token + "\n", { mode: 0o600 });
     fs.chmodSync(tokenFile, 0o600);
   } catch (err) {

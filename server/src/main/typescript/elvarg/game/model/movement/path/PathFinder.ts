@@ -7,6 +7,7 @@ import { RsmodRouteFinding } from "./RsmodRouteFinding";
 import { isNoclip } from "../Noclip";
 import * as fs from "fs";
 import * as path from "path";
+import { logsDir } from "../../../../util/GamePaths";
 
 export class PathFinder {
     // Debounce path-blocked events aggressively: repeated retries against the
@@ -16,7 +17,7 @@ export class PathFinder {
     // Bots generate substantially more repeated "no path" attempts than human
     // players, so use a longer debounce window for bot entities.
     private static readonly PATH_BLOCKED_EVENT_BOT_DEBOUNCE_MS = 2500;
-    private static LOG_DIR = path.join(process.cwd(), "logs");
+    private static LOG_DIR = logsDir();
     private static LOG_FILE = path.join(PathFinder.LOG_DIR, "movement.log");
     private static LOG_READY = false;
     private static LOG_ENABLED = false;

@@ -53,11 +53,10 @@ export class WorldConfigStore {
     }
 
     /** Reads both layers from `dir` (default: data/definitions under the working directory). Never throws for a bad local file. */
-    public static read(dir: string = path.resolve("data/definitions")): WorldConfigLayers {
+    public static read(dir: string = path.resolve("data/definitions"), localFile: string = path.join(dir, "world.local.json")): WorldConfigLayers {
         const shippedFile = JSON.parse(fs.readFileSync(path.join(dir, "world.json"), "utf8"));
         if (!isObject(shippedFile)) throw new Error("world.json must be an object");
         const shipped = normalizeWorldPluginConfig(shippedFile);
-        const localFile = path.join(dir, "world.local.json");
         if (!fs.existsSync(localFile)) {
             return { shipped, local: {}, localExists: false, localHash: "" };
         }
@@ -241,8 +240,8 @@ export class WorldConfigStore {
     }
 
     /** Replaces world.local.json atomically. Refuses a stale hash or an unparseable current file. */
-    public static write(dir: string, nextLocal: JsonObject, expectedHash: string): void {
-        const file = path.join(dir, "world.local.json");
+    public static write(dir: string, nextLocal: JsonObject, expectedHash: string, localFile: string = path.join(dir, "world.local.json")): void {
+        const file = localFile;
         const current = fs.existsSync(file) ? fs.readFileSync(file) : undefined;
         const currentHash = current ? sha256(current) : "";
         if (currentHash !== expectedHash) {
@@ -257,8 +256,9 @@ export class WorldConfigStore {
             }
             if (!isObject(parsed)) throw new Error("world.local.json does not parse as an object; fix it by hand first");
         }
-        const temp = path.join(dir, `.world.local.json.${process.pid}.${Date.now()}.tmp`);
+        const temp = path.join(path.dirname(file), `.world.local.json.${process.pid}.${Date.now()}.tmp`);
         try {
+            fs.mkdirSync(path.dirname(file), { recursive: true });
             fs.writeFileSync(temp, JSON.stringify(nextLocal, null, 2) + "\n");
             fs.renameSync(temp, file);
         } catch (err) {

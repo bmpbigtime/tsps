@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { clientArtworkDir } = require("../lib/GamePaths");
 
 const MAX_BYTES = 700 * 1024;
 const PNG_SIGNATURE = Buffer.from("89504e470d0a1a0a", "hex");
@@ -44,7 +45,7 @@ function isValidArtwork(id, data) {
 
 function artworkFile(id) {
   if (!isArtworkId(id)) throw new Error("Unknown client image");
-  return path.resolve("data/client-artwork", id + ".json");
+  return path.join(clientArtworkDir(), id + ".json");
 }
 
 function readJson(file) {
@@ -62,7 +63,7 @@ function readArtwork(id) {
 }
 
 function readLoginScreenSettings() {
-  const data = readJson(path.resolve("data/client-artwork/login-screen.json"));
+  const data = readJson(path.join(clientArtworkDir(), "login-screen.json"));
   return { showFlames: data?.showFlames !== false, showLogo: data?.showLogo !== false };
 }
 

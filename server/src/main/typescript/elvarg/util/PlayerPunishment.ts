@@ -1,6 +1,7 @@
 import { Misc } from "./Misc";
 import * as fs from "fs";
 import * as path from "path";
+import { savesPath } from "./GamePaths";
 
 export class PlayerPunishment {
     private static writes: Promise<void> = Promise.resolve();
@@ -30,8 +31,8 @@ export class PlayerPunishment {
             }
         });
     }
-    private static readonly BAN_DIRECTORY = "./data/saves/";
-    private static readonly MUTE_DIRECTORY = "./data/saves/";
+    private static readonly BAN_DIRECTORY = savesPath() + path.sep;
+    private static readonly MUTE_DIRECTORY = savesPath() + path.sep;
 
     public static IPSBanned: string[] = [];
     public static IPSMuted: string[] = [];

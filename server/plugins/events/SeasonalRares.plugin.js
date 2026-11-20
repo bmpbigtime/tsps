@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../lib/GamePaths");
 
 /**
  * Seasonal rares: a server feature, not OSRS behaviour. Live OSRS no longer hands out the discontinued rares; this
@@ -33,7 +34,7 @@ const KEY_PATTERN = /^[a-z][a-z0-9-]*$/;
 
 let api = null;
 let rows = [];
-let storeFile = path.join(process.cwd(), "data", "saves", "seasonal-rares.json");
+let storeFile = savesPath("seasonal-rares.json");
 let store = {};
 let storeReadable = true;
 

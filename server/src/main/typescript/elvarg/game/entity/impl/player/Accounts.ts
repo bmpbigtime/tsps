@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { DisplayNames } from "./DisplayNames";
+import { savesPath } from "../../../../util/GamePaths";
 
 export interface AccountCharacter {
     /** The name as the player typed it. */
@@ -63,7 +64,7 @@ export class Accounts {
     }
 
     private static file(): string {
-        return process.env[Accounts.FILE_ENV] || path.join(process.cwd(), "data", "saves", "accounts.json");
+        return process.env[Accounts.FILE_ENV] || savesPath("accounts.json");
     }
 
     private static load(): Map<string, AccountEntry> {

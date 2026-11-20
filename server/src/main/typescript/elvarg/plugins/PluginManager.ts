@@ -2276,7 +2276,10 @@ export class PluginManager {
       const entries = fs.readdirSync(directory, { withFileTypes: true });
       for (const entry of entries) {
         const fullPath = path.join(directory, entry.name);
-        if (entry.isDirectory()) {
+        // plugins/imported is a symlink to the persistent volume in the Docker image.
+        const isDirectory = entry.isDirectory()
+          || (entry.isSymbolicLink() && fs.statSync(fullPath).isDirectory());
+        if (isDirectory) {
           if (depth < maxDepth) {
             walk(fullPath, depth + 1);
           }

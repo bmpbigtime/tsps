@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The Sisterhood Sanctuary's two scoreboards, both interface nightmare_scoreboard:
@@ -47,7 +48,7 @@ const COMPONENT = {
   worldKills: "ms8", worldDeaths: "ms10", worldBest: "ms12",
 };
 
-let FILE = path.join(process.cwd(), "data", "saves", "nightmare-scoreboard.json");
+let FILE = savesPath("nightmare-scoreboard.json");
 let world = null;
 
 const count = (value) => (Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0);

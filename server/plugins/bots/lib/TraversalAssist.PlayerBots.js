@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { botsDataDir } = require("../../lib/GamePaths");
 const { MapObjects } = require("../../../src/main/typescript/elvarg/game/entity/impl/object/MapObjects");
 
 // Bump when the dump shape or its inputs change; older dumps are rescanned.
@@ -54,7 +55,7 @@ function createTraversalAssist(api, options = {}) {
   const INIT_RETRY_BACKOFF_MS = 5000;
   const persistentIndexPath =
     options.cachePath ??
-    path.join(__dirname, "..", "data", "object-index.json");
+    path.join(botsDataDir(), "object-index.json");
 
   /** Sorted id list: a dump built for a different set of tracked kinds is rejected. */
   function trackedIdsFingerprint() {

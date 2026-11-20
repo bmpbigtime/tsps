@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * Eyatlalli's scoreboard (Wiki, Eyatlalli: "Talk-to, Scoreboard" once Perilous Moons is done):
@@ -30,7 +31,7 @@ const COMPONENT = { title: "title_text", chests: "pkc_content", deaths: "pd_cont
 const TITLE = "Perilous Moons Statistics";
 const DEATHS_ATTRIBUTE = "moons-of-peril:deaths";
 
-let FILE = path.join(process.cwd(), "data", "saves", "moons-of-peril-scoreboard.json");
+let FILE = savesPath("moons-of-peril-scoreboard.json");
 let world = null;
 
 const count = (value) => (Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0);

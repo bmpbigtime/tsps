@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * Elder Nama's scoreboard (Wiki: Shellbane_gryphon "acts as a scoreboard for the boss,
@@ -27,7 +28,7 @@ const COMPONENT = {
 const DEATHS_ATTRIBUTE = "shellbane-gryphon:deaths";
 const BEST_TICKS_ATTRIBUTE = "shellbane-gryphon:best-ticks";
 
-let FILE = path.join(process.cwd(), "data", "saves", "shellbane-gryphon-scoreboard.json");
+let FILE = savesPath("shellbane-gryphon-scoreboard.json");
 let world = null;
 
 const count = (value) => (Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0);

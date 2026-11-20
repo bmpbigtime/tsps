@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { logsDir } from "./GamePaths";
 import * as util from "util";
 import { GameConstants } from "../game/GameConstants";
 
@@ -102,7 +103,7 @@ export class ServerLogger {
     return true;
   }
 
-  public static install(logFile = path.join(process.cwd(), "logs", "server.log")): void {
+  public static install(logFile = path.join(logsDir(), "server.log")): void {
     if (ServerLogger.installed) {
       return;
     }

@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 const fs = require("fs");
 const path = require("path");
@@ -8,7 +9,7 @@ const path = require("path");
  * the Gauntlet and Doom scoreboards): name, persona, provider, notes and where each logged
  * out. Their levels and items are in their normal player saves.
  */
-const DEFAULT_FILE = path.join(process.cwd(), "data", "saves", "ai-bots.json");
+const DEFAULT_FILE = savesPath("ai-bots.json");
 const MAX_NOTES = 12;
 const MAX_NOTE_LENGTH = 120;
 const SAVE_DELAY_MS = 2000;

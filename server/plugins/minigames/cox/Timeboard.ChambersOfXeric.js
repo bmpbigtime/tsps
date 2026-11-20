@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The Challenge Timeboard: the five fastest Challenge Mode completions on this world, with the
@@ -28,7 +29,7 @@ const TOP = 5;
 const TITLE = "Challenge Mode Timeboard";
 const MADE_IT = "<col=ef20ff>Your team has made it onto this world's Challenge Timeboard!</col>";
 
-let FILE = path.join(process.cwd(), "data", "saves", "cox-timeboard.json");
+let FILE = savesPath("cox-timeboard.json");
 let board = null;
 
 /** The team-size brackets the Wiki's table has. */

@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The two lobby scoreboards (castlewars_scoreboard, "Scoreboard": View, View Stats).
@@ -31,7 +32,7 @@ const GAMES_ATTRIBUTE = "castlewars:games-played";
 const WINS_ATTRIBUTE = "castlewars:wins";
 const LOSSES_ATTRIBUTE = "castlewars:losses";
 
-let FILE = path.join(process.cwd(), "data", "saves", "castle-wars-scoreboard.json");
+let FILE = savesPath("castle-wars-scoreboard.json");
 let world = null;
 let core = null;
 

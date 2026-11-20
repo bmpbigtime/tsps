@@ -1,9 +1,10 @@
+const { savesPath } = require("../../lib/GamePaths");
 "use strict";
 // Revision-241 duke_sucellus_scoreboard: text components have no transmit listeners.
 const fs = require('node:fs'), path = require('node:path');
 const Common = require('./Common.DukeSucellus');
 const DEATHS = 'duke-sucellus:deaths';
-const FILE = path.join(process.cwd(), 'data', 'saves', 'duke-sucellus-scoreboard.json');
+const FILE = savesPath("duke-sucellus-scoreboard.json");
 const INTERFACE = 828;
 /** toplevel_mainmodal_open (-1, -1), run before the board as live does: a modal before it (the bank's
  * -2) can leave the main modal stretched, which pulls the board's background to the top. */

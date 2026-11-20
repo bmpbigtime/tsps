@@ -217,6 +217,14 @@ function createRequestHandler(access, actions, worldSettingKeys) {
       send(response, result.status, result.body);
       return;
     }
+    if (url.pathname === "/api/notify") {
+      if (method !== "POST") throw new HttpError(405, "Method not allowed");
+      if (!originAllowed(request)) throw new HttpError(403, "Cross-origin request refused");
+      const result = await actions.notify(await readJson(request));
+      send(response, result.status, result.body);
+      if (result.afterResponse) result.afterResponse();
+      return;
+    }
     const post = { "/api/preview": "preview", "/api/apply": "apply", "/api/cancel": "cancel" }[url.pathname];
     if (!post) throw new HttpError(404, "Not found");
     if (method !== "POST") throw new HttpError(405, "Method not allowed");

@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The scoreboard outside Araxxor's lair (54270, a scroll until varp total_araxxor_kills is set,
@@ -30,7 +31,7 @@ const COMPONENT = {
 const TITLE = "Araxxor Statistics";
 const DEATHS_ATTRIBUTE = "araxxor:deaths";
 
-let FILE = path.join(process.cwd(), "data", "saves", "araxxor-scoreboard.json");
+let FILE = savesPath("araxxor-scoreboard.json");
 let world = null;
 let cache = null;
 

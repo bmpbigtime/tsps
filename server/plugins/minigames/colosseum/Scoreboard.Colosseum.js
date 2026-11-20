@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The lobby's Colosseum scoreboard (50747: View, View-stats, View-glory), interface 867.
@@ -53,7 +54,7 @@ const ATTR = {
   BEST: "colosseum:best-ticks",
 };
 
-let FILE = path.join(process.cwd(), "data", "saves", "colosseum-scoreboard.json");
+let FILE = savesPath("colosseum-scoreboard.json");
 let world = null;
 
 const count = (value) => (Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0);

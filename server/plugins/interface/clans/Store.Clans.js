@@ -1,16 +1,17 @@
+const { savesPath } = require("../../lib/GamePaths");
 /** The clans on disk, written whole on every change: there are few of them and they rarely change. */
 
 const fs = require("fs");
 const path = require("path");
 
 const FILE_ENV = "TSPS_CLANS_FILE";
-const DEFAULT_FILE = path.join("data", "saves", "clans.json");
+const DEFAULT_FILE = savesPath("clans.json");
 
 let clans = null;
 let nextKey = 1;
 
 function file() {
-  return process.env[FILE_ENV] || path.join(process.cwd(), DEFAULT_FILE);
+  return process.env[FILE_ENV] || DEFAULT_FILE;
 }
 
 function load() {

@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * Personal and world records for the scoreboard: completions and best times per delve level
@@ -19,7 +20,7 @@ const ATTR = {
   DEATHS: "doom:deaths",
 };
 
-const file = path.join(process.cwd(), "data", "saves", "doom-scoreboard.json");
+const file = savesPath("doom-scoreboard.json");
 let world = null;
 let persist = true;
 

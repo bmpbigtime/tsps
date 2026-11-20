@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * What Group Ironman keeps about a group beyond its membership (which is Grouping's), written whole
@@ -16,13 +17,13 @@ const fs = require("fs");
 const path = require("path");
 
 const FILE_ENV = "TSPS_GROUP_IRONMAN_FILE";
-const DEFAULT_FILE = path.join("data", "saves", "group-ironman.json");
+const DEFAULT_FILE = savesPath("group-ironman.json");
 
 let records = null;
 let pending = null;
 
 function file() {
-  return process.env[FILE_ENV] || path.join(process.cwd(), DEFAULT_FILE);
+  return process.env[FILE_ENV] || DEFAULT_FILE;
 }
 
 function load() {

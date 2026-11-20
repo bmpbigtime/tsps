@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The scoreboard by TzHaar-Ket-Rak (jad_challenge_scoreboard, "Scoreboard": Read), interface
@@ -33,7 +34,7 @@ const SCRIPT = { MAINMODAL_OPEN: 2524, SETUP: 4023 };
 /** Per challenge (1-6): the player's deaths in it. */
 const DEATHS_ATTRIBUTE = "tzhaar-ket-rak:deaths";
 
-let FILE = path.join(process.cwd(), "data", "saves", "tzhaar-ket-rak-scoreboard.json");
+let FILE = savesPath("tzhaar-ket-rak-scoreboard.json");
 let world = null;
 
 const count = (value) => (Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0);
