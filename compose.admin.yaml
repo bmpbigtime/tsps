@@ -1,0 +1,15 @@
+# Optional: reach the world-admin page from the host.
+#
+#   docker compose -f compose.yaml -f compose.admin.yaml up -d
+#   open http://localhost:49600/?token=<WORLD_ADMIN_TOKEN>
+#
+# It publishes on 127.0.0.1 only and requires WORLD_ADMIN_TOKEN (24+ characters of
+# A-Z a-z 0-9 _ -) in .env, because the server refuses a non-loopback bind without one.
+# For access from another machine, put TLS in front (WORLD_ADMIN_TLS_CERT/KEY) or use an SSH
+# tunnel; do not publish 49600 on 0.0.0.0.
+services:
+  app:
+    ports:
+      - "127.0.0.1:${WORLD_ADMIN_PORT:-49600}:${WORLD_ADMIN_PORT:-49600}"
+    environment:
+      WORLD_ADMIN_BIND: "0.0.0.0"

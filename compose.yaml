@@ -1,0 +1,106 @@
+# TSPS with Docker Compose. Copy .env.example to .env, edit PUBLIC_HOST, then:
+#
+#   docker compose up -d
+#
+# The published image is ghcr.io/rspsapp/tsps. To build locally instead:
+#   docker compose -f compose.yaml -f compose.build.yaml up -d --build
+#
+# Everything mutable is on the tsps-data volume (TSPS_DATA_DIR=/data). The container's root
+# filesystem is read-only; only /data and a small tmpfs are writable.
+name: tsps
+
+services:
+  app:
+    image: ghcr.io/rspsapp/tsps:${TSPS_IMAGE_TAG:-latest}
+    container_name: tsps
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 90s
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # Game HTTP + WebSocket. The static client is served on CLIENT_PORT.
+      - "${GAME_PORT:-43594}:43594"
+      - "${CLIENT_PORT:-3000}:3000"
+      # The world-admin panel is NOT published by default. See compose.admin.yaml.
+    volumes:
+      - tsps-data:/data
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # These win over .env, because .env is also used for Compose interpolation above.
+      TSPS_DATA_DIR: /data
+      TSPS_CACHE_DIR: /data/caches
+      TSPS_LOG_DIR: /data/logs
+      TSPS_SUPERVISED: "1"
+      TSPS_STOP_GRACE_SECONDS: "90"
+      WEBSOCKET_PORT: "43594"
+      CLIENT_PORT: "3000"
+      WORLD_ADMIN_PORT: "${WORLD_ADMIN_PORT:-49600}"
+      # Host-side port players reach, used to write the client's servers.json.
+      GAME_PORT: "${GAME_PORT:-43594}"
+      PUBLIC_HOST: "${PUBLIC_HOST:-localhost}"
+      SERVER_NAME: "${SERVER_NAME:-TSPS}"
+      SERVER_SECURE: "${SERVER_SECURE:-false}"
+      MAX_PLAYERS: "${MAX_PLAYERS:-2047}"
+      TZ: "${TZ:-UTC}"
+    labels:
+      # Only used by the opt-in auto-update profile below.
+      com.centurylinklabs.watchtower.enable: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:'+(process.env.WEBSOCKET_PORT||43594)+'/regions').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      start_period: 180s
+      retries: 5
+
+  # Backup / restore helper (docs/docker.md). It runs in the same image so it has node:sqlite
+  # and tar, and writes archives to ./backups on the host:
+  #
+  #   docker compose --profile tools run --rm backup create
+  #   docker compose --profile tools run --rm backup list
+  #   docker compose stop app
+  #   docker compose --profile tools run --rm backup restore /backups/<file>.tar.gz
+  #   docker compose up -d
+  backup:
+    image: ghcr.io/rspsapp/tsps:${TSPS_IMAGE_TAG:-latest}
+    profiles: ["tools"]
+    user: "0:0"
+    entrypoint: ["node", "/app/docker/backup.mjs"]
+    command: ["create"]
+    volumes:
+      - tsps-data:/data
+      - ./backups:/backups
+    environment:
+      TSPS_DATA_DIR: /data
+      BACKUP_DIR: /backups
+    tmpfs:
+      - /tmp
+
+  # OPT-IN automatic updates, and NOT the recommended way: watchtower recreates the container
+  # as soon as a new image appears, so players get no countdown and there is no pre-update
+  # backup. The data volume is reused unchanged, so data survives. Prefer the scheduled
+  # scripts/docker-update.sh (docs/docker.md), which warns, backs up, and leaves the old
+  # container running if anything fails.
+  #
+  #   docker compose --profile auto-update up -d
+  #
+  # Pinned to the maintained beatkind fork; upstream containrrr/watchtower is end-of-life.
+  auto-update:
+    image: beatkind/watchtower:2.3.2
+    profiles: ["auto-update"]
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_POLL_INTERVAL: "3600"
+      WATCHTOWER_TIMEOUT: "90s"
+
+volumes:
+  tsps-data:
