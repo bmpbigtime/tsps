@@ -5,6 +5,8 @@ name: Docker smoke test
 # The publish workflow is separate and multi-arch; this one proves the image actually runs.
 
 on:
+  push:
+    branches: [main, docker-deploy]
   pull_request:
     paths:
       - Dockerfile
