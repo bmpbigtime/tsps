@@ -1,0 +1,36 @@
+name: Docker smoke test
+
+# Builds the image on a runner that has Docker and exercises the deployment path:
+# read-only root filesystem, generated server list, countdown trigger, backup, graceful stop.
+# The publish workflow is separate and multi-arch; this one proves the image actually runs.
+
+on:
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - compose.yaml
+      - compose.build.yaml
+      - compose.admin.yaml
+      - docker/**
+      - scripts/docker-update.sh
+      - server/scripts/tsps-notify.mjs
+      - server/plugins/lib/GamePaths.js
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Build and run the image
+        run: bash docker/ci-smoke.sh
+
+      - name: Container logs on failure
+        if: failure()
+        run: docker compose logs app || true
