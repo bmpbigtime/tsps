@@ -34,6 +34,30 @@ wait_healthy() {
   return 1
 }
 
+app_id() { docker inspect --format '{{.Id}}' tsps 2>/dev/null || true; }
+marker_count() { docker logs tsps 2>&1 | grep -c '\[plugins\] active=' || true; }
+
+# Health can be reported before the game server has finished loading plugins and definitions.
+# Wait for a startup line this container has not logged before, so stopping it exercises a fully
+# started server (the same container keeps its logs across stop/start).
+wait_started() {
+  local target="$1"
+  for _ in $(seq 1 120); do
+    if [[ "$(marker_count)" -ge "$target" ]]; then return 0; fi
+    sleep 2
+  done
+  return 1
+}
+
+start_app() {
+  local old_id old_count target
+  old_id="$(app_id)"
+  old_count="$(marker_count)"
+  "${COMPOSE[@]}" up -d --pull never
+  if [[ "$(app_id)" == "$old_id" ]]; then target=$((old_count + 1)); else target=1; fi
+  wait_started "$target"
+}
+
 check_endpoints() {
   curl -fsS --max-time 10 http://127.0.0.1:43594/regions >/dev/null || fail "/regions did not answer"
   curl -fsS --max-time 10 http://127.0.0.1:3000/ | grep '<div id="root"' >/dev/null || fail "client index did not answer"
@@ -44,10 +68,7 @@ log "building $IMAGE"
 docker build -t "$IMAGE" .
 
 log "starting compose ($IMAGE, read-only root)"
-"${COMPOSE[@]}" up -d --pull never
-
-log "waiting for the game server (cache download on a cold runner)"
-if ! wait_healthy; then
+if ! start_app || ! wait_healthy; then
   docker logs tsps 2>&1 | tail -80 || true
   fail "container did not become healthy"
 fi
@@ -88,25 +109,27 @@ list_out="$("${COMPOSE[@]}" --profile tools run --rm backup list)"
 
 log "checking persistence across a restart"
 "${COMPOSE[@]}" stop app >/dev/null
-"${COMPOSE[@]}" up -d --pull never
-if ! wait_healthy; then
+if ! start_app; then
   docker logs tsps 2>&1 | tail -80 || true
-  fail "container did not become healthy after restart"
+  fail "container did not finish starting after restart"
 fi
 check_endpoints
 
 log "checking restore over the volume"
 "${COMPOSE[@]}" stop app >/dev/null
 "${COMPOSE[@]}" --profile tools run --rm backup restore "/backups/$backup_name" --force || fail "restore"
-"${COMPOSE[@]}" up -d --pull never
-if ! wait_healthy; then
+if ! start_app; then
   docker logs tsps 2>&1 | tail -80 || true
-  fail "container did not become healthy after restore"
+  fail "container did not finish starting after restore"
 fi
 check_endpoints
 
 log "checking graceful stop (player persistence log)"
 "${COMPOSE[@]}" stop app >/dev/null
-docker logs tsps 2>&1 | grep -q "Player persistence completed" || fail "graceful stop did not persist players"
+stop_logs="$(docker logs tsps 2>&1 || true)"
+if [[ "$stop_logs" != *"Player persistence completed"* ]]; then
+  tail -60 <<<"$stop_logs"
+  fail "graceful stop did not persist players"
+fi
 
 log "all checks passed"
