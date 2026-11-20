@@ -1,0 +1,14 @@
+# Build the image locally instead of pulling it:
+#
+#   docker compose -f compose.yaml -f compose.build.yaml up -d --build
+#
+# Builds linux/amd64 (or the host architecture). For a multi-arch release use the workflow.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+  backup:
+    build:
+      context: .
+      dockerfile: Dockerfile
