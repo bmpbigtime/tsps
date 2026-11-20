@@ -31,6 +31,22 @@ If setup is interrupted, run `npm run setup` again.
 
 Running several branches at once, one worktree each on its own ports: see [docs/worktrees.md](docs/worktrees.md).
 
+### Deploy with Docker
+
+The published image contains the compiled server and client, and keeps all mutable state on one
+volume:
+
+```bash
+cp .env.example .env        # set PUBLIC_HOST to the address players use
+docker compose up -d
+```
+
+Open `http://localhost:3000`. The first start downloads the game cache into the data volume; the
+server is healthy when `docker compose ps` reports `healthy`. Update with
+`docker compose pull && docker compose up -d`, or use [`scripts/docker-update.sh`](scripts/docker-update.sh)
+to warn players and back up first. Full guide (Windows/WSL2, ports, the admin page, backup and
+restore, troubleshooting): [docs/docker.md](docs/docker.md).
+
 ### Local world settings
 
 Create `server/data/definitions/world.local.json` with the settings you want to override from
