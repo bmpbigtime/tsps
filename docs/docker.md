@@ -293,6 +293,7 @@ It does not contain caches or logs; they regenerate and are large.
 3. Start the data volume once so Docker creates it:
 
    ```bash
+   docker compose pull app
    docker compose create app
    docker compose stop app
    ```

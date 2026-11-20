@@ -14,6 +14,9 @@ server/logs
 server/era-caches
 server/data/saves
 server/data/player-state.json
+server/data/definitions/world.local.json
+server/data/definitions/world-admin.token
+server/data/definitions/bot-activities.local.json
 server/plugins/imported
 backups
 docs

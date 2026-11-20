@@ -114,7 +114,7 @@ fi
 log "waiting for the new container to become healthy"
 for ((i = 0; i < 60; i++)); do
   status="$("${COMPOSE_CMD[@]}" ps --format json app 2>/dev/null | tr -d '\n' || true)"
-  if [[ "$status" == *'"Health":"healthy"'* || "$status" == *'"Status":"running"'* ]]; then
+  if [[ "$status" == *'"Health":"healthy"'* || "$status" == *'"State":"running"'* || "$status" == *'"Status":"running"'* ]]; then
     log "update complete"
     exit 0
   fi
