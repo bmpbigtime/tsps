@@ -67,7 +67,7 @@ say_out="$("${COMPOSE[@]}" exec -T app tsps-notify say "Docker smoke test")"
 [[ "$say_out" == *"Announcement sent"* ]] || fail "say: $say_out"
 
 log "checking that only /data and /tmp changed"
-docker diff tsps | grep -vE '^(A|C|D) (/data|/tmp)(/|$)' | grep -vE '^(A|C|D) /etc/(hosts|hostname|resolv.conf)$' > /tmp/tsps-docker-diff-extra || true
+docker diff tsps | grep -vE '^(A|C|D) (/data|/tmp)(/|$)' | grep -vE '^(A|C|D) /etc/(hosts|hostname|resolv.conf)$' | grep -vE '^(A|C|D) /usr(/sbin)?$' | grep -vE '^A /usr/sbin/docker-init$' > /tmp/tsps-docker-diff-extra || true
 if [[ -s /tmp/tsps-docker-diff-extra ]]; then
   cat /tmp/tsps-docker-diff-extra
   fail "files changed outside /data and /tmp (see above)"
