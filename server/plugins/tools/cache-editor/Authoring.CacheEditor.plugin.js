@@ -6,6 +6,7 @@
 // document. Saving never touches the cache — it writes overlay rows and asks for a restart.
 const http = require("node:http");
 const path = require("node:path");
+const { definitionsEditsEnabled } = require("../../lib/GamePaths");
 const Document = require("./Document.CacheEditor.cjs");
 const Assets = require("./Assets.CacheEditor.cjs");
 
@@ -100,6 +101,10 @@ function createAuthoring(core, root) {
 function startup(apiCore) {
   // Opening a write service is an explicit local development choice.
   if (process.env.CACHE_EDITOR_ENABLED !== "1" || process.env.BROWSER_HOST === "1") return;
+  if (!definitionsEditsEnabled()) {
+    console.warn("[cache-editor] disabled: TSPS_DATA_DIR is set, so definition edits would not survive an image update");
+    return;
+  }
   const root = path.resolve(__dirname, "../../..");
   const { handle } = createAuthoring(apiCore, root);
   const port = Number(process.env.WEBSOCKET_PORT || 43594) + 1101;

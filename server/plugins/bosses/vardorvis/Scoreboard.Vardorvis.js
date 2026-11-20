@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The Ancient Tablet by the way into the Stranglewood ritual site (vardorvis_scoreboard, which the
@@ -41,7 +42,7 @@ const PERSONAL = {
 };
 const MODES = ["normal", "awakened"];
 
-let FILE = path.join(process.cwd(), "data", "saves", "vardorvis-scoreboard.json");
+let FILE = savesPath("vardorvis-scoreboard.json");
 let world = null;
 
 const count = (value) => (Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0);

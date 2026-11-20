@@ -21,6 +21,7 @@ import { Flooder } from "./util/flood/Flooder";
 import { ServerLogger } from "./util/ServerLogger";
 import { PlayerPunishment } from "./util/PlayerPunishment";
 import { Accounts } from "./game/entity/impl/player/Accounts";
+import { logsDir } from "./util/GamePaths";
 
 export interface ShutdownOptions {
   /**
@@ -65,7 +66,7 @@ export class Server {
 
   private static setupFileLogging() {
     if (Server.consolePatched) return;
-    ServerLogger.install(path.join(process.cwd(), "logs", "server.log"));
+    ServerLogger.install(path.join(logsDir(), "server.log"));
     Server.consolePatched = true;
   }
 

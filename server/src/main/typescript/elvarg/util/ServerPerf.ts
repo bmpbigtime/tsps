@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { logsDir } from "./GamePaths";
 
 type TickPhaseMap = Map<string, number>;
 
@@ -38,28 +39,23 @@ function parseEnvFlag(value: string | undefined, defaultValue: boolean): boolean
 export class ServerPerf {
   private static readonly SAMPLE_CAP = 300;
   private static readonly SNAPSHOT_FILE = path.join(
-    process.cwd(),
-    "logs",
+    logsDir(),
     "server-performance.snapshot.log"
   );
   private static readonly PERIODIC_SNAPSHOT_FILE = path.join(
-    process.cwd(),
-    "logs",
+    logsDir(),
     "server-performance.periodic.log"
   );
   private static readonly PERIODIC_SNAPSHOT_LATEST_FILE = path.join(
-    process.cwd(),
-    "logs",
+    logsDir(),
     "server-performance.periodic.latest.log"
   );
   private static readonly AUTO_SNAPSHOT_FILE = path.join(
-    process.cwd(),
-    "logs",
+    logsDir(),
     "server-performance.auto.log"
   );
   private static readonly AUTO_SNAPSHOT_LATEST_FILE = path.join(
-    process.cwd(),
-    "logs",
+    logsDir(),
     "server-performance.auto.latest.log"
   );
   private static readonly AUTO_SNAPSHOT_COOLDOWN_MS = 15000;

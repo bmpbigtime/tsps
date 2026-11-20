@@ -37,6 +37,7 @@ import type { Location } from "../../model/Location";
 import { Misc } from "../../../util/Misc";
 import { TaskManager } from "../../task/TaskManager";
 import { TimerKey } from "../../../util/timers/TimerKey";
+import { logsDir } from "../../../util/GamePaths";
 
 type CombatCycleState = {
     cycle: number;
@@ -108,7 +109,7 @@ export class Combat {
             const fs = require("fs");
             const path = require("path");
             if (!Combat.traceFile) {
-                const dir = path.join(process.cwd(), "logs");
+                const dir = logsDir();
                 fs.mkdirSync(dir, { recursive: true });
                 Combat.traceFile = path.join(dir, "combat-debug.log");
             }

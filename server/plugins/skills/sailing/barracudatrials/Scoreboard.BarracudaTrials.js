@@ -1,3 +1,4 @@
+const { savesPath } = require("../../../lib/GamePaths");
 // The trials' scoreboards (rsprox, recordings 856 and 3778): View opens the statistics (933) as a
 // main modal with the trial's title, the player's best times and this server's totals: all
 // completions, completions that reached each rank, and the best time at each rank. The totals are
@@ -16,7 +17,7 @@ const SCRIPT_MAINMODAL_OPEN = 2524;
 const FIELD = { title: 7, completions: 10, sharks: 12, pbSwordfish: 14, pbShark: 16, pbMarlin: 18, swordfishes: 20, marlins: 22, bestSwordfish: 24, bestShark: 26, bestMarlin: 28 };
 const SCOREBOARDS = { 58926: "tempor_tantrum", 58927: "jubbly_jive", 58928: "gwenith_glide" };
 
-let FILE = path.join(process.cwd(), "data", "saves", "barracuda-trials.json");
+let FILE = savesPath("barracuda-trials.json");
 let saved;
 
 function records() {

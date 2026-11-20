@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The Shooting Star Noticeboard at the Observatory (Wiki): Read lists the last five stars that
@@ -15,7 +16,7 @@ const Common = require("./Common.ShootingStars");
 
 const { DATA } = Common;
 const board = DATA.noticeboard;
-const file = path.join(process.cwd(), "data", "saves", "shooting-stars.json");
+const file = savesPath("shooting-stars.json");
 
 let records = null;
 let persist = true;

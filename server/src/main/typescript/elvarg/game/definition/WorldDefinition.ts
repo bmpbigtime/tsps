@@ -3,6 +3,7 @@ import * as path from "path";
 import { Boundary } from "../model/Boundary";
 import { Location } from "../model/Location";
 import { isFreeToPlayWorld, normalizeWorldPluginConfig, preserveLegacyCrossFloorDefault, type ScopedPluginSettings } from "./WorldPluginConfig";
+import { worldLocalConfigPath } from "../../util/GamePaths";
 
 export type WorldZoneTag = string;
 
@@ -61,7 +62,7 @@ export function readWorldConfig(scopedSettings?: ScopedPluginSettings): JsonObje
     const shipped = object(JSON.parse(fs.readFileSync(path.resolve("data/definitions/world.json"), "utf8")), "world.json");
     // Optional per-deployment overrides (gitignored), so a live world can differ from the
     // shipped world.json (e.g. its XP rate or tutorial) and still update from main by fast-forward.
-    const localFile = path.resolve("data/definitions/world.local.json");
+    const localFile = worldLocalConfigPath();
     if (!fs.existsSync(localFile)) return preserveLegacyCrossFloorDefault(normalizeWorldPluginConfig(shipped, scopedSettings));
     const local = object(JSON.parse(fs.readFileSync(localFile, "utf8")), "world.local.json");
     return mergeWorldConfig(shipped, local, scopedSettings);

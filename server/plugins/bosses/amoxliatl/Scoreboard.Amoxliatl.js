@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The Ancient tablet before Amoxliatl's door in the Ruins of Tapoyauik (amoxliatl_scoreboard, which
@@ -33,7 +34,7 @@ const COMPONENT = {
 const TITLE = "Amoxliatl Statistics";
 const DEATHS_ATTRIBUTE = "amoxliatl:deaths";
 
-let FILE = path.join(process.cwd(), "data", "saves", "amoxliatl-scoreboard.json");
+let FILE = savesPath("amoxliatl-scoreboard.json");
 let world = null;
 
 const count = (value) => (Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0);

@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The scoreboard by the Muspah's crevice in the Ghorrock Dungeon (muspah_scoreboard_multi, which
@@ -37,7 +38,7 @@ const COMPONENT = {
 const TITLE = "Phantom Muspah Statistics";
 const DEATHS_ATTRIBUTE = "phantom-muspah:deaths";
 
-let FILE = path.join(process.cwd(), "data", "saves", "phantom-muspah-scoreboard.json");
+let FILE = savesPath("phantom-muspah-scoreboard.json");
 let world = null;
 
 const count = (value) => (Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0);

@@ -40,6 +40,11 @@ const {
 const {
   ShopManager,
 } = require("../../src/main/typescript/elvarg/game/model/container/shop/ShopManager");
+const { definitionsEditsEnabled } = require("../lib/GamePaths");
+
+const DEFINITIONS_EDIT_DISABLED_MESSAGE =
+  "Persistent definition edits are disabled in this deployment (TSPS_DATA_DIR is set). " +
+  "Edit data/definitions in the source image and rebuild instead.";
 
 /** Read by Mobile.ts and PlayerDeath.ts: a developer with it set takes damage and loses items on death. */
 const MORTAL_DEVELOPER_ATTRIBUTE = "dev:mortal";
@@ -372,6 +377,10 @@ function npcSpawnCommand({ player, parts }) {
 }
 
 function permanentNpcSpawnCommand({ player, parts }) {
+  if (!definitionsEditsEnabled()) {
+    player.sendMessage(DEFINITIONS_EDIT_DISABLED_MESSAGE);
+    return true;
+  }
   const id = parseIntArg(parts[1]);
   let radiusArg = null;
   let facingArg = null;
@@ -676,6 +685,7 @@ function getNpcIdsWithSamePossibleAnimations(npcId, file = NPC_ANIMATION_FILES.p
 }
 
 function writeNpcCombatAnimations(npcIds, animations, file = NPC_ANIMATION_FILES.combat, name = null) {
+  if (!definitionsEditsEnabled()) throw new Error(DEFINITIONS_EDIT_DISABLED_MESSAGE);
   const definitions = JSON.parse(fs.readFileSync(file, "utf8"));
   if (!definitions || typeof definitions !== "object" || !definitions.npcs || typeof definitions.npcs !== "object") {
     throw new Error("Invalid npc-combat-defs.json");
@@ -1220,6 +1230,10 @@ module.exports = {
     api.registerCommand("npc", npcSpawnCommand, PlayerRights.OWNER, "Spawn NPC");
 
     const npcAnimationCommand = ({ player, parts }) => {
+      if (!definitionsEditsEnabled()) {
+        player.sendMessage(DEFINITIONS_EDIT_DISABLED_MESSAGE);
+        return true;
+      }
       const id = parseIntArg(parts[1]);
       if (id === null || id < 0) {
         player.sendMessage("Usage: ::npcanims npc-id");
@@ -1251,6 +1265,10 @@ module.exports = {
     api.registerCommand("npcanims", npcAnimationCommand, PlayerRights.OWNER, "Set NPC animations");
 
     api.registerCommand("npcanimscan", ({ player, parts }) => {
+      if (!definitionsEditsEnabled()) {
+        player.sendMessage(DEFINITIONS_EDIT_DISABLED_MESSAGE);
+        return true;
+      }
       const id = parseIntArg(parts[1]);
       if (id === null || id < 0) {
         player.sendMessage("Usage: ::npcanimscan npc-id [first-sequence last-sequence]");

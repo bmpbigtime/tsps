@@ -4,6 +4,7 @@ import path = require("path");
 import { SectorCluster } from "./codec/rs/cache/store/SectorCluster";
 import { FileStore } from "./codec/rs/cache/store/FileStore";
 import { GAMEVAL_INDEX } from "./Gamevals";
+import { cachesDir } from "../../util/GamePaths";
 
 const OPENRS2 = "https://archive.openrs2.org";
 const REQUIRED_FILES = [
@@ -68,7 +69,9 @@ export class CachePipeline {
     this.store = undefined;
     const name = fs.readFileSync(path.join(root, "target.txt"), "utf8").trim();
     const { revision, date } = parseCacheTarget(name);
-    const caches = path.join(root, "caches");
+    const caches = process.env.TSPS_DATA_DIR || process.env.TSPS_CACHE_DIR
+      ? cachesDir()
+      : path.join(root, "caches");
     const directory = path.join(caches, name);
     fs.mkdirSync(caches, { recursive: true });
 

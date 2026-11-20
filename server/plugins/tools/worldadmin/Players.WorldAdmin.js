@@ -1,3 +1,4 @@
+const { savesPath } = require("../../lib/GamePaths");
 const fs = require("node:fs");
 const path = require("node:path");
 const { HttpError, readJson, send } = require("./Http.WorldAdmin");
@@ -7,7 +8,7 @@ const USERNAME = /^[a-z0-9][a-z0-9 _-]{0,19}$/i;
 const key = name => name.toLowerCase().replace(/_/g, " ");
 
 function savedPlayers(profile = "main", jsonBackend = false) {
-  const database = process.env.PLAYER_SAVE_DATABASE_PATH || "data/saves/players.sqlite";
+  const database = process.env.PLAYER_SAVE_DATABASE_PATH || savesPath("players.sqlite");
   const prefix = profile === "main" ? "" : `${profile}:`;
   if (!jsonBackend && fs.existsSync(database)) {
     const { DatabaseSync } = require("node:sqlite");
@@ -22,7 +23,7 @@ function savedPlayers(profile = "main", jsonBackend = false) {
       db.close();
     }
   }
-  const directory = path.resolve("data/saves/characters", profile === "main" ? "." : profile);
+  const directory = path.resolve(savesPath("characters"), profile === "main" ? "." : profile);
   if (!fs.existsSync(directory)) return [];
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(file => {
     const name = path.basename(file.name, ".json");

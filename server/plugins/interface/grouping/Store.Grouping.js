@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The groups (Grouping.plugin.js), written whole to data/saves/groups.json on every change, as
@@ -22,7 +23,7 @@ const fs = require("fs");
 const path = require("path");
 
 const FILE_ENV = "TSPS_GROUPS_FILE";
-const DEFAULT_FILE = path.join("data", "saves", "groups.json");
+const DEFAULT_FILE = savesPath("groups.json");
 
 let groups = null;
 let nextId = 1;
@@ -36,7 +37,7 @@ const spellings = new Map();
 const slot = (profile, account) => `${profile}|${account}`;
 
 function file() {
-  return process.env[FILE_ENV] || path.join(process.cwd(), DEFAULT_FILE);
+  return process.env[FILE_ENV] || DEFAULT_FILE;
 }
 
 function revive(saved) {

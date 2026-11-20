@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * The lobby scoreboard (interface 639): your completions, deaths and best time for the Gauntlet
@@ -21,7 +22,7 @@ const SCRIPT_MAINMODAL_OPEN = 2524;
 const PANELS = { regular: { title: "The Gauntlet", first: 5 }, corrupted: { title: "The Corrupted Gauntlet", first: 18 } };
 const MODES = ["regular", "corrupted"];
 
-let file = path.join(process.cwd(), "data", "saves", "gauntlet-scoreboard.json");
+let file = savesPath("gauntlet-scoreboard.json");
 let global = null;
 
 function emptyTotals() {

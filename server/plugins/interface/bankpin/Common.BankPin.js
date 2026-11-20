@@ -1,3 +1,4 @@
+const { savesPath } = require("../../lib/GamePaths");
 /**
  * The Bank PIN: what the units share - the plugin api, plugins/interface/data/bank-pin.json with
  * its interfaces and components resolved from the cache, the player's saved PIN state and the
@@ -79,7 +80,7 @@ function hash(player, pin) {
  * restart, which only asks for the PIN once more).
  */
 const HOST_SECRET_PATTERN = /^[0-9a-f]{64}$/;
-let hostSecretFile = path.join(process.cwd(), "data", "saves", "bank-pin-host.key");
+let hostSecretFile = savesPath("bank-pin-host.key");
 let hostSecret = null;
 
 function loadHostSecret() {

@@ -29,6 +29,7 @@ import { ChatType } from "../../../net/protocol/ClientProtocol";
 import type { PluginObjectRouteEvent } from "../../../plugins/PluginTypes";
 import * as fs from "fs";
 import * as path from "path";
+import { logsDir } from "../../../util/GamePaths";
 const getBoatManager = () =>
     require("../../content/sailing/BoatManager").BoatManager as typeof import("../../content/sailing/BoatManager").BoatManager;
 
@@ -36,7 +37,7 @@ export class MovementQueue {
     private static readonly BOT_FOLLOW_REPATH_COOLDOWN_MS = 500;
 
     private static RANDOM: RandomGen = new RandomGen();
-    private static LOG_DIR = path.join(process.cwd(), "logs");
+    private static LOG_DIR = logsDir();
     private static LOG_FILE = path.join(MovementQueue.LOG_DIR, "movement.log");
     private static LOG_READY = true;
     private static LOG_ENABLED = false;

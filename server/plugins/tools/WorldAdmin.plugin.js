@@ -7,6 +7,7 @@ const { playerRoutes } = require("./worldadmin/Players.WorldAdmin");
 const { botRoutes } = require("./worldadmin/Bots.WorldAdmin");
 const { botEditorRoutes } = require("./worldadmin/BotEditor.WorldAdmin");
 const { readPluginZip, downloadPluginRelease, savePluginZip, deletePluginZip } = require("./worldadmin/PluginZip.WorldAdmin");
+const { pluginsImportedDir, worldLocalConfigPath, worldAdminTokenPath } = require("../lib/GamePaths");
 
 // The world config page's own HTTP listener (spec "Saving", "Restart", "Access").
 //   WORLD_ADMIN_PORT (default 49600), WORLD_ADMIN_TOKEN (fixed token), WORLD_ADMIN_BIND (only with a 24+ character token)
@@ -28,7 +29,6 @@ const MAX_COUNTDOWN_SECONDS = 24 * 60 * 60;
 const PLUGIN_NAME = "WorldAdmin";
 const PLUGIN_DIRECTORY = path.join(__dirname, "..");
 const DEFINITIONS_DIRECTORY = () => path.resolve("data/definitions");
-const TOKEN_FILE_NAME = "world-admin.token";
 const SELF_OFF_WARNING =
   "This turns off the world config page; you'd need to edit world.local.json by hand to turn it back on.";
 
@@ -85,7 +85,7 @@ function pendingApplyNow(status) {
 }
 
 function readLayers() {
-  return pluginApi.core.WorldConfigStore.read(DEFINITIONS_DIRECTORY());
+  return pluginApi.core.WorldConfigStore.read(DEFINITIONS_DIRECTORY(), worldLocalConfigPath());
 }
 
 function plainObject(value) {
@@ -158,7 +158,7 @@ function checkPluginMutationAllowed() {
 function installRelease(release) {
   checkPluginMutationAllowed();
   const catalog = pluginApi.core.WorldConfigCatalog;
-  savePluginZip(PLUGIN_DIRECTORY, release, catalog.build(PLUGIN_DIRECTORY, readLayers()).plugins);
+  savePluginZip(PLUGIN_DIRECTORY, release, catalog.build(PLUGIN_DIRECTORY, readLayers()).plugins, pluginsImportedDir());
   catalog.invalidate();
   return { status: 201, body: { name: release.manifest.name, version: release.manifest.version } };
 }
@@ -170,7 +170,7 @@ async function installPluginAction({ packageId, version }) {
 
 function deletePluginAction({ packageId }) {
   checkPluginMutationAllowed();
-  deletePluginZip(PLUGIN_DIRECTORY, packageId);
+  deletePluginZip(PLUGIN_DIRECTORY, packageId, pluginsImportedDir());
   pluginApi.core.WorldConfigCatalog.invalidate();
   return { status: 200, body: { deleted: true } };
 }
@@ -211,7 +211,7 @@ function checkBeforeShutdown(id, expectedHash) {
 function deferredWrite(id, nextLocal, expectedHash) {
   return function writeWorldConfig() {
     try {
-      pluginApi.core.WorldConfigStore.write(DEFINITIONS_DIRECTORY(), nextLocal, expectedHash);
+      pluginApi.core.WorldConfigStore.write(DEFINITIONS_DIRECTORY(), nextLocal, expectedHash, worldLocalConfigPath());
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
       console.error(`[world-admin] world.local.json not written, restart cancelled: ${reason}`);
@@ -264,7 +264,7 @@ function applyAction({ changes, localHash, seconds = DEFAULT_COUNTDOWN_SECONDS }
   const mode = restartMode();
   if (mode === "manual") {
     try {
-      pluginApi.core.WorldConfigStore.write(DEFINITIONS_DIRECTORY(), plan.nextLocal, layers.localHash);
+      pluginApi.core.WorldConfigStore.write(DEFINITIONS_DIRECTORY(), plan.nextLocal, layers.localHash, worldLocalConfigPath());
     } catch (err) {
       return writeError(err);
     }
@@ -302,6 +302,75 @@ function cancelAction() {
   return { status: 200, body: { cancelled: payload.cancelled === true } };
 }
 
+function notifyRestartAction(seconds) {
+  if (!Number.isInteger(seconds) || seconds <= 0 || seconds > MAX_COUNTDOWN_SECONDS) {
+    return { status: 400, body: { error: `seconds must be a whole number from 1 to ${MAX_COUNTDOWN_SECONDS}` } };
+  }
+  if (shuttingDown()) return { status: 409, body: { error: "The server is already shutting down" } };
+  const status = gameUpdateStatus();
+  if (pendingApplyNow(status) || status.scheduled === true) {
+    return {
+      status: 409,
+      body: { error: `A restart is already pending${status.remainingSeconds ? ` (${status.remainingSeconds}s remaining)` : ""}; cancel it first` },
+    };
+  }
+  const mode = restartMode();
+  if (mode === "manual") {
+    return {
+      status: 409,
+      body: { error: "This server has no supervisor to restart it. Set TSPS_SUPERVISED=1 (the Docker image does) or restart it by hand." },
+    };
+  }
+  const exitCode = mode === "supervised" ? SUPERVISED_EXIT_CODE : DEV_EXIT_CODE;
+  const id = crypto.randomUUID();
+  if (onlinePlayers() > 0) {
+    const start = { seconds, id, exitCode, onCancelled: (reason) => console.warn(`[world-admin] notified restart cancelled: ${reason}`) };
+    pluginApi.emitCustomEvent("GameUpdate:start", start);
+    if (start.error) return { status: 409, body: { error: start.error } };
+    if (start.accepted === true) {
+      return { status: 202, body: { countdownSeconds: seconds, onlinePlayers: onlinePlayers() } };
+    }
+    // GameUpdate is switched off: fall through to an immediate restart, as Apply does.
+  }
+  return {
+    status: 202,
+    body: { restarting: true, onlinePlayers: 0 },
+    afterResponse: () => pluginApi.core.Server.shutdown("notify", { exitCode }),
+  };
+}
+
+/** The external trigger behind `docker compose exec app tsps-notify`. Reuses GameUpdate, never a second countdown. */
+function notifyAction(body = {}) {
+  const action = String(body.action ?? "").trim().toLowerCase();
+  if (action === "status") {
+    const status = gameUpdateStatus();
+    return {
+      status: 200,
+      body: {
+        onlinePlayers: onlinePlayers(),
+        scheduled: status.scheduled === true,
+        remainingSeconds: status.remainingSeconds ?? 0,
+        available: status.remainingSeconds !== undefined,
+        mode: restartMode(),
+      },
+    };
+  }
+  if (action === "cancel") return cancelAction();
+  if (action === "restart") {
+    const seconds = body.seconds === undefined ? DEFAULT_COUNTDOWN_SECONDS : Number(body.seconds);
+    return notifyRestartAction(seconds);
+  }
+  if (action === "say") {
+    const message = typeof body.message === "string" ? body.message.replace(/[\r\n]+/g, " ").trim() : "";
+    if (message.length === 0 || message.length > 240) {
+      return { status: 400, body: { error: "message must be 1 to 240 characters" } };
+    }
+    pluginApi.core.World.sendMessage(message);
+    return { status: 200, body: { sent: message, onlinePlayers: onlinePlayers() } };
+  }
+  return { status: 400, body: { error: "action must be restart, cancel, status or say" } };
+}
+
 const actions = {
   async dispatch(request, response, url) {
     if (url.pathname === "/api/server/shutdown" && process.env.TSPS_WORLD_ADMIN_SOCKET) {
@@ -331,6 +400,7 @@ const actions = {
   preview: previewAction,
   apply: applyAction,
   cancel: cancelAction,
+  notify: notifyAction,
 };
 
 // The listener stays open through a shutdown: when the shutdown cancels itself the page still
@@ -338,7 +408,7 @@ const actions = {
 // listener from holding the process open by itself.
 async function startWorldAdmin() {
   if (process.env.BROWSER_HOST === "1" || httpServer) return;
-  const tokenFile = path.join(DEFINITIONS_DIRECTORY(), TOKEN_FILE_NAME);
+  const tokenFile = worldAdminTokenPath();
   access = resolveAccess(process.env, { tokenFile });
   for (const note of access.notes) console.warn(`[world-admin] ${note}`);
   // Behind the local panel (TSPS_WORLD_ADMIN_SOCKET) the panel serves https; its pipe stays http.
@@ -375,7 +445,8 @@ async function startWorldAdmin() {
 function startupLinkMessage(url, tokenSource, tokenFile) {
   if (tokenSource === "env") return `${url}?token=<WORLD_ADMIN_TOKEN> (the configured WORLD_ADMIN_TOKEN)`;
   if (tokenSource === "file") {
-    const shown = path.relative(process.cwd(), tokenFile).split(path.sep).join("/");
+    const relative = path.relative(process.cwd(), tokenFile).split(path.sep).join("/");
+    const shown = relative.startsWith("..") ? tokenFile.split(path.sep).join("/") : relative;
     return `${url}?token=<token from ${shown}>`;
   }
   return `${url} (the token could not be saved; set WORLD_ADMIN_TOKEN to use the page)`;

@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * Every group's storage, written whole to data/saves/group-storage.json (TSPS_GROUP_STORAGE_FILE
@@ -15,7 +16,7 @@ const fs = require("fs");
 const path = require("path");
 
 const FILE_ENV = "TSPS_GROUP_STORAGE_FILE";
-const DEFAULT_FILE = path.join("data", "saves", "group-storage.json");
+const DEFAULT_FILE = savesPath("group-storage.json");
 /** Wiki (Group Ironman Mode): "Initially, there are 80 bank spaces", unlocked "up to a maximum of 200". */
 const CAPACITY = 80;
 const MAX_CAPACITY = 200;
@@ -24,7 +25,7 @@ const MAX_CAPACITY = 200;
 let storages = null;
 
 function file() {
-  return process.env[FILE_ENV] || path.join(process.cwd(), DEFAULT_FILE);
+  return process.env[FILE_ENV] || DEFAULT_FILE;
 }
 
 function emptySlots(length = CAPACITY) {

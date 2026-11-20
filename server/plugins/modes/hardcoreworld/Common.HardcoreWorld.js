@@ -1,4 +1,5 @@
 "use strict";
+const { savesPath } = require("../../lib/GamePaths");
 
 /**
  * Hardcore Worlds: what the units share. A world runs it when its plugin config says so
@@ -26,7 +27,7 @@ const SKIP_PERSISTENCE_ATTRIBUTE = "bot-skip-persistence";
 
 /** The resets file: name key -> { resets }. Kept apart from the saves a Reset deletes. */
 const STORE_ENV = "HARDCORE_WORLD_FILE";
-const DEFAULT_STORE = path.join("data", "saves", "hardcore-world.json");
+const DEFAULT_STORE = savesPath("hardcore-world.json");
 /** Days from 27 February 2002, live's date counter (as ironman_hardcore_downgradedate). */
 const DAY_ZERO = Date.UTC(2002, 1, 27);
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -101,7 +102,7 @@ function later(player, ticks, action) {
 // ---------------------------------------------------------------- the resets file
 
 function storeFile() {
-  return process.env[STORE_ENV] || path.join(process.cwd(), DEFAULT_STORE);
+  return process.env[STORE_ENV] || DEFAULT_STORE;
 }
 
 function loadStore() {

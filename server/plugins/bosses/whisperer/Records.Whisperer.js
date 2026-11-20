@@ -1,7 +1,8 @@
+const { savesPath } = require("../../lib/GamePaths");
 const fs = require('node:fs');
 const path = require('node:path');
 const Common = require('./Common.Whisperer');
-const FILE = path.join(process.cwd(), 'data', 'saves', 'whisperer-scoreboard.json');
+const FILE = savesPath("whisperer-scoreboard.json");
 /** toplevel_mainmodal_open (-1, -1), run before the board as live does: a modal before it (the bank's
  * -2) can leave the main modal stretched, which pulls the board's background to the top. */
 const SCRIPT_MAINMODAL_OPEN = 2524;

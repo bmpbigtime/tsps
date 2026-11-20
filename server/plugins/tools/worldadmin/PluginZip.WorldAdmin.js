@@ -93,8 +93,8 @@ async function downloadPluginRelease(packageId, version) {
   return release;
 }
 
-function savePluginZip(directory, { manifest, file, source }, existingPlugins) {
-  const imported = path.join(directory, "imported");
+function savePluginZip(directory, { manifest, file, source }, existingPlugins, importedDirectory = path.join(directory, "imported")) {
+  const imported = importedDirectory;
   const destination = path.join(imported, manifest.id);
   const key = manifest.name.toLowerCase();
   if (existingPlugins.some((plugin) => [plugin.name, path.basename(plugin.file, ".plugin.js")]
@@ -105,7 +105,7 @@ function savePluginZip(directory, { manifest, file, source }, existingPlugins) {
   if (!fs.lstatSync(imported).isDirectory()) throw new Error("Invalid imported plugin directory");
   if (fs.existsSync(destination)) throw new HttpError(409, "That plugin package is already installed.");
 
-  const staging = fs.mkdtempSync(path.join(path.dirname(directory), ".plugin-upload-"));
+  const staging = fs.mkdtempSync(path.join(path.dirname(imported), ".plugin-upload-"));
   try {
     fs.writeFileSync(path.join(staging, "plugin.json"), JSON.stringify(manifest));
     fs.writeFileSync(path.join(staging, file), source);
@@ -115,11 +115,11 @@ function savePluginZip(directory, { manifest, file, source }, existingPlugins) {
   }
 }
 
-function deletePluginZip(directory, packageId) {
+function deletePluginZip(directory, packageId, importedDirectory = path.join(directory, "imported")) {
   if (typeof packageId !== "string" || !PACKAGE_ID.test(packageId)) {
     throw new HttpError(400, "Invalid plugin package ID.");
   }
-  const imported = path.join(directory, "imported");
+  const imported = importedDirectory;
   const destination = path.join(imported, packageId);
   const manifestFile = path.join(destination, "plugin.json");
   const missing = () => new HttpError(404, "Installed plugin package not found.");

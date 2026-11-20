@@ -1,3 +1,4 @@
+const { savesPath } = require("../lib/GamePaths");
 const fs = require("fs");
 const path = require("path");
 const { DatabaseSync } = require("node:sqlite");
@@ -30,10 +31,10 @@ function legacyJsonImportEnabled() {
 class SqlitePlayerPersistence extends PlayerPersistence {
   static LEGACY_SAVE_DIRECTORY = process.env.LEGACY_PLAYER_SAVE_DIRECTORY
     ? path.resolve(process.env.LEGACY_PLAYER_SAVE_DIRECTORY)
-    : path.join(process.cwd(), "data", "saves", "characters");
+    : savesPath("characters");
   static DATABASE_PATH = process.env.PLAYER_SAVE_DATABASE_PATH
     ? path.resolve(process.env.PLAYER_SAVE_DATABASE_PATH)
-    : path.join(process.cwd(), "data", "saves", "players.sqlite");
+    : savesPath("players.sqlite");
   static IMPORT_LEGACY_JSON = legacyJsonImportEnabled();
 
   constructor() {

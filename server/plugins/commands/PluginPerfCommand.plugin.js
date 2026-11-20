@@ -1,21 +1,16 @@
 const fs = require("fs");
 const path = require("path");
+const { logsDir } = require("../lib/GamePaths");
+
+const LOG_DIR = logsDir();
 
 let pluginApi;
 let World;
 let ServerPerf;
 
-const PLUGIN_PERF_LOG_FILE = path.join(process.cwd(), "logs", "plugin-performance.log");
-const PLUGIN_PERF_LATEST_FILE = path.join(
-  process.cwd(),
-  "logs",
-  "plugin-performance.latest.log"
-);
-const SERVER_PERF_SNAPSHOT_FILE = path.join(
-  process.cwd(),
-  "logs",
-  "server-performance.snapshot.log"
-);
+const PLUGIN_PERF_LOG_FILE = path.join(LOG_DIR, "plugin-performance.log");
+const PLUGIN_PERF_LATEST_FILE = path.join(LOG_DIR, "plugin-performance.latest.log");
+const SERVER_PERF_SNAPSHOT_FILE = path.join(LOG_DIR, "server-performance.snapshot.log");
 const DEFAULT_LIMIT = 5;
 const DEFAULT_INTERVAL_MS = 10000;
 const MAX_LIMIT = 15;

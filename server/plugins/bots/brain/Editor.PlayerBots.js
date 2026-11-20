@@ -3,7 +3,8 @@
 // The editor deliberately supports a small, validated subset of the brain's actions.
 const fs = require("node:fs");
 const path = require("node:path");
-const FILE = path.join(process.cwd(), "data", "definitions", "bot-activities.local.json");
+const { configDir } = require("../../lib/GamePaths");
+const FILE = path.join(configDir(), "bot-activities.local.json");
 
 const SKILL_NAMES = new Set(['attack','defence','strength','hitpoints','ranged','prayer','magic','cooking','woodcutting','fletching','fishing','firemaking','crafting','smithing','mining','herblore','agility','thieving','slayer','farming','runecrafting','hunter','construction','sailing']);
 function cleanCondition(condition, depth = 0) {
