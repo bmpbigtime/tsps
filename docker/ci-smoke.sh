@@ -35,7 +35,7 @@ wait_healthy() {
 }
 
 app_id() { docker inspect --format '{{.Id}}' tsps 2>/dev/null || true; }
-marker_count() { docker logs tsps 2>&1 | grep -c '\[plugins\] active=' || true; }
+marker_count() { docker logs tsps 2>&1 | grep -c "$1" || true; }
 
 # Health can be reported before the game server has finished loading plugins and definitions.
 # Wait for a startup line this container has not logged before, so stopping it exercises a fully
@@ -43,7 +43,10 @@ marker_count() { docker logs tsps 2>&1 | grep -c '\[plugins\] active=' || true; 
 wait_started() {
   local target="$1"
   for _ in $(seq 1 120); do
-    if [[ "$(marker_count)" -ge "$target" ]]; then return 0; fi
+    if [[ "$(marker_count '\[plugins\] active=')" -ge "$target" && \
+          "$(marker_count '\[network\] client websocket listening')" -ge "$target" ]]; then
+      return 0
+    fi
     sleep 2
   done
   return 1
@@ -52,16 +55,16 @@ wait_started() {
 start_app() {
   local old_id old_count target
   old_id="$(app_id)"
-  old_count="$(marker_count)"
+  old_count="$(marker_count '\[plugins\] active=')"
   "${COMPOSE[@]}" up -d --pull never
   if [[ "$(app_id)" == "$old_id" ]]; then target=$((old_count + 1)); else target=1; fi
   wait_started "$target"
 }
 
 check_endpoints() {
-  curl -fsS --max-time 10 http://127.0.0.1:43594/regions >/dev/null || fail "/regions did not answer"
-  curl -fsS --max-time 10 http://127.0.0.1:3000/ | grep '<div id="root"' >/dev/null || fail "client index did not answer"
-  curl -fsS --max-time 10 http://127.0.0.1:3000/servers.json | grep '"address"' >/dev/null || fail "servers.json did not answer"
+  curl -fsS --max-time 10 --retry 5 --retry-delay 1 --retry-connrefused http://127.0.0.1:43594/regions >/dev/null || fail "/regions did not answer"
+  curl -fsS --max-time 10 --retry 5 --retry-delay 1 --retry-connrefused http://127.0.0.1:3000/ | grep '<div id="root"' >/dev/null || fail "client index did not answer"
+  curl -fsS --max-time 10 --retry 5 --retry-delay 1 --retry-connrefused http://127.0.0.1:3000/servers.json | grep '"address"' >/dev/null || fail "servers.json did not answer"
 }
 
 log "building $IMAGE"
