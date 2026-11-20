@@ -36,8 +36,8 @@ wait_healthy() {
 
 check_endpoints() {
   curl -fsS --max-time 10 http://127.0.0.1:43594/regions >/dev/null || fail "/regions did not answer"
-  curl -fsS --max-time 10 http://127.0.0.1:3000/ | grep -q '<div id="root"' || fail "client index did not answer"
-  curl -fsS --max-time 10 http://127.0.0.1:3000/servers.json | grep -q '"address"' || fail "servers.json did not answer"
+  curl -fsS --max-time 10 http://127.0.0.1:3000/ | grep '<div id="root"' >/dev/null || fail "client index did not answer"
+  curl -fsS --max-time 10 http://127.0.0.1:3000/servers.json | grep '"address"' >/dev/null || fail "servers.json did not answer"
 }
 
 log "building $IMAGE"
@@ -61,8 +61,10 @@ uid="$(docker run --rm --entrypoint id "$IMAGE" -u)"
 [[ "$uid" == "10001" ]] || fail "runtime uid is $uid, expected 10001"
 
 log "checking the notify trigger"
-"${COMPOSE[@]}" exec -T app tsps-notify status | grep -q "No restart scheduled" || fail "status"
-"${COMPOSE[@]}" exec -T app tsps-notify say "Docker smoke test" | grep -q "0 players" || fail "say"
+status_out="$("${COMPOSE[@]}" exec -T app tsps-notify status)"
+[[ "$status_out" == *"No restart scheduled"* ]] || fail "status: $status_out"
+say_out="$("${COMPOSE[@]}" exec -T app tsps-notify say "Docker smoke test")"
+[[ "$say_out" == *"0 players"* ]] || fail "say: $say_out"
 
 log "checking that only /data and /tmp changed"
 docker diff tsps | grep -vE '^(A|C|D) (/data|/tmp)(/|$)' | grep -vE '^(A|C|D) /etc/(hosts|hostname|resolv.conf)$' > /tmp/tsps-docker-diff-extra || true
@@ -81,7 +83,8 @@ backup_path="$("${COMPOSE[@]}" --profile tools run --rm backup create | tail -1)
 backup_name="$(basename "$backup_path")"
 backup_file="backups/${backup_name}"
 [[ -f "$backup_file" ]] || fail "backup did not create $backup_file"
-"${COMPOSE[@]}" --profile tools run --rm backup list | grep -q "$backup_name" || fail "backup list"
+list_out="$("${COMPOSE[@]}" --profile tools run --rm backup list)"
+[[ "$list_out" == *"$backup_name"* ]] || fail "backup list"
 
 log "checking persistence across a restart"
 "${COMPOSE[@]}" stop app >/dev/null
@@ -106,5 +109,4 @@ log "checking graceful stop (player persistence log)"
 "${COMPOSE[@]}" stop app >/dev/null
 docker logs tsps 2>&1 | grep -q "Player persistence completed" || fail "graceful stop did not persist players"
 
-rm -rf backups
 log "all checks passed"

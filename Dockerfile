@@ -43,8 +43,8 @@ FROM node:22-bookworm-slim AS runtime
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates tar tzdata \
     && rm -rf /var/lib/apt/lists/* \
-    && groupadd --system --gid 10001 tsps \
-    && useradd --system --uid 10001 --gid tsps --create-home tsps
+    && groupadd --gid 10001 tsps \
+    && useradd --uid 10001 --gid tsps --create-home --shell /usr/sbin/nologin tsps
 
 WORKDIR /app
 

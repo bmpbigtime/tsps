@@ -14,7 +14,8 @@ volume.
 
 ## Requirements
 
-- Docker Engine with the Compose plugin, or Docker Desktop on Windows/macOS.
+- Docker Engine with the Compose plugin, or Docker Desktop on Windows/macOS. The compose file uses
+  `env_file.required`, so use Compose v2.24 or newer (Docker Desktop 4.25+).
 - On Windows, use Docker Desktop with the **WSL2 backend** (the default); Hyper-V containers and
   Linux bind mounts from `C:\` are not supported for the data directory.
 - A 64-bit CPU. The image also runs under emulation, but `linux/arm64` native is much faster on a
